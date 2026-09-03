@@ -1,39 +1,36 @@
-#include <Arduino.h>
+#include "LoRa_E32.h"
 
-#define LORA_RX 16
-#define LORA_TX 17
-#define LORA_AUX 18
-#define LORA_M0  21
-#define LORA_M1  19
-
-HardwareSerial LoRaSerial(2);
+LoRa_E32 e32ttl(&Serial2, 18, 21, 19);
 
 void setup() {
-    // PC Serial Monitor
-    Serial.begin(9600);
-    delay(2000);
+  Serial.begin(115200);
+  Serial2.begin(9600, SERIAL_8N1, 27, 26);
+  e32ttl.begin();
+  delay(500);
 
-    // LoRa control pins
-    pinMode(LORA_AUX, INPUT);
-    pinMode(LORA_M0, OUTPUT);
-    pinMode(LORA_M1, OUTPUT);
+  ResponseStructContainer c = e32ttl.getConfiguration();
+  Serial.println("getConfiguration code: " + c.status.getResponseDescription());
+  if (c.status.code != E32_SUCCESS) {
+    Serial.println("Config read FAILED — stopping here.");
+    while (true) { delay(1000); }
+  }
 
-    // LoRa Normal Mode: M0 = LOW, M1 = LOW
-    digitalWrite(LORA_M0, LOW);
-    digitalWrite(LORA_M1, LOW);
+  Configuration config = *(Configuration*) c.data;
+  config.ADDL = 0x01;
+  config.ADDH = 0x00;
+  config.CHAN = 0x17;
+  config.SPED.uartBaudRate = UART_BPS_9600;
+  config.SPED.airDataRate = AIR_DATA_RATE_010_24;
+  ResponseStatus rs = e32ttl.setConfiguration(config, WRITE_CFG_PWR_DWN_SAVE);
+  Serial.println("setConfiguration code: " + rs.getResponseDescription());
+  c.close();
 
-    // LoRa UART
-    LoRaSerial.begin(9600, SERIAL_8N1, LORA_RX, LORA_TX);
-
-    Serial.println("LORA SLAVE STARTED");
-    Serial.println("Waiting for messages...");
+  Serial.println("Slave ready");
 }
 
 void loop() {
-    if (LoRaSerial.available()) {
-        String message = LoRaSerial.readStringUntil('\n');
-
-        Serial.print("Received: ");
-        Serial.println(message);
-    }
+  if (e32ttl.available()) {
+    ResponseContainer rc = e32ttl.receiveMessage();
+    Serial.println("Received: " + rc.data);
+  }
 }
