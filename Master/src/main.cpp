@@ -1,7 +1,7 @@
 #include "LoRa_E32.h"
 
-// AUX=15, M0=21, M1=19
-LoRa_E32 e32ttl(&Serial2, 15, 21, 19);
+// AUX=18, M0=21, M1=19
+LoRa_E32 e32ttl(&Serial2, 18, 21, 19);
 
 void setup() {
   Serial.begin(115200);
