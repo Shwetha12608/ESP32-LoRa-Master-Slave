@@ -2,7 +2,11 @@
   "connections": [
     {
       "MASTER - ESP32 DEVKITC V4"
-      "LoRa": "VCC - 5V", "GND - GND", "AUX - 18", " TXD - 27", "RXD - 26", "M0 - 21", "M1 - 19
+      "LoRa": "VCC - 5V", "GND - GND", "AUX - 18", " TXD - 27", "RXD - 26", "M0 - 21", "M1 - 19"
+
+      "SLAVE - ESP32 DEVKITC V4"
+      "LoRa": "VCC - 5V", "GND - GND", "AUX - 18", " TXD - 27", "RXD - 26", "M0 - 21", "M1 - 19"
+
     }
   ]
 }
